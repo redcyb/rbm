@@ -62,6 +62,17 @@ class FRBM(AbstractRBM):
             sample_bernoulli(pv_r)
         )
 
+    def get_delta_w(self, v0, prob_h0, sample_v1, prob_h1):
+        return ((np.dot(v0.reshape(-1, 1), np.transpose(prob_h0.reshape(-1, 1))) -
+                 np.dot(sample_v1.reshape(-1, 1), np.transpose(prob_h1.reshape(-1, 1))))
+                * (self.momentum * self.learning_rate))
+
+    def get_delta_bv(self, v0, sample_v1):
+        return (v0 - sample_v1) * (self.momentum * self.learning_rate)
+
+    def get_delta_bh(self, prob_h0, prob_h1):
+        return (prob_h0 - prob_h1) * (self.momentum * self.learning_rate)
+
     def partial_fit(self, batch_x):
         deltas_w_l, deltas_w_r, deltas_bh_l, deltas_bh_r, deltas_bv_l, deltas_bv_r = [[] for i in range(6)]
         batch_sample_v1 = []
@@ -76,26 +87,23 @@ class FRBM(AbstractRBM):
 
             # Deltas
 
-            delta_w_l = ((np.dot(x0.reshape(-1, 1), np.transpose(prob_h0_l.reshape(-1, 1))) -
-                          np.dot(sample_v1_l.reshape(-1, 1), np.transpose(prob_h1_l.reshape(-1, 1))))
-                         * (self.momentum * self.learning_rate))
-            delta_vb_l = ((x0 - sample_v1_l) * (self.momentum * self.learning_rate))
-            delta_hb_l = ((prob_h0_l - prob_h1_l) * (self.momentum * self.learning_rate))
+            delta_w_l = self.get_delta_w(x0, prob_h0_l, sample_v1_l, prob_h1_l)
+            delta_w_r = self.get_delta_w(x0, prob_h0_r, sample_v1_r, prob_h1_r)
 
-            delta_w_r = ((np.dot(x0.reshape(-1, 1), np.transpose(prob_h0_r.reshape(-1, 1))) -
-                          np.dot(sample_v1_r.reshape(-1, 1), np.transpose(prob_h1_r.reshape(-1, 1))))
-                         * (self.momentum * self.learning_rate))
-            delta_vb_r = ((x0 - sample_v1_r) * (self.momentum * self.learning_rate))
-            delta_hb_r = ((prob_h0_r - prob_h1_r) * (self.momentum * self.learning_rate))
+            delta_bv_l = self.get_delta_bv(x0, sample_v1_l)
+            delta_bv_r = self.get_delta_bv(x0, sample_v1_r)
+
+            delta_bh_l = self.get_delta_bh(prob_h0_l, prob_h1_l)
+            delta_bh_r = self.get_delta_bh(prob_h0_r, prob_h1_r)
 
             deltas_w_l.append(delta_w_l)
             deltas_w_r.append(delta_w_r)
 
-            deltas_bh_l.append(delta_hb_l)
-            deltas_bh_r.append(delta_hb_r)
+            deltas_bh_l.append(delta_bh_l)
+            deltas_bh_r.append(delta_bh_r)
 
-            deltas_bv_l.append(delta_vb_l)
-            deltas_bv_r.append(delta_vb_r)
+            deltas_bv_l.append(delta_bv_l)
+            deltas_bv_r.append(delta_bv_r)
 
             # Batch result
 
@@ -126,9 +134,10 @@ class FRBM(AbstractRBM):
 
     def reconstruct(self, x):
         prob_h0_l, prob_h0_r = self.get_prob_h(x, x)
-        sample_h0_l, sample_h0_r = self.sample_h(prob_h0_l, prob_h0_r)
-        prob_v1_l, prob_v1_r = self.get_prob_v(sample_h0_l, sample_h0_r)
-        sample_v1_l, sample_v1_r = self.sample_v(prob_v1_l, prob_v1_r)
+        # sample_h0_l, sample_h0_r = self.sample_h(prob_h0_l, prob_h0_r)
+        prob_v1_l, prob_v1_r = self.get_prob_v(prob_h0_l, prob_h0_r)
+        # sample_v1_l, sample_v1_r = self.sample_v(prob_v1_l, prob_v1_r)
+        sample_v1_l, sample_v1_r = prob_v1_l, prob_v1_r
         return (sample_v1_l + sample_v1_r) / 2
 
     def save_weights(self, filename):

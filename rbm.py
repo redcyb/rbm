@@ -44,9 +44,10 @@ class RBM(AbstractRBM):
 
     def reconstruct(self, x):
         prob_h0 = self.get_prob_h(x)
-        sample_h0 = self.sample_h(prob_h0)
-        prob_v1 = self.get_prob_v(sample_h0)
-        sample_v1 = self.sample_v(prob_v1)
+        # sample_h0 = self.sample_h(prob_h0)
+        prob_v1 = self.get_prob_v(prob_h0)
+        # sample_v1 = self.sample_v(prob_v1)
+        sample_v1 = prob_v1
         return sample_v1
 
     def partial_fit(self, batch_x):
