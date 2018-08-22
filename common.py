@@ -72,7 +72,8 @@ class AbstractRBM:
         else:
             data_x_cpy = data_x
 
-        errs = []
+        all_errs = []
+        epochs_mean_errs = []
 
         for e in range(n_epoches):
             if verbose and not self._use_tqdm:
@@ -104,6 +105,7 @@ class AbstractRBM:
             if verbose:
 
                 err_mean = epoch_errs.mean()
+                epochs_mean_errs.append(err_mean)
 
                 if self._use_tqdm:
                     self._tqdm.write('Train error: {:.4f}'.format(err_mean))
@@ -113,9 +115,9 @@ class AbstractRBM:
                     print('')
                 sys.stdout.flush()
 
-            errs = np.hstack([errs, epoch_errs])
+            all_errs = np.hstack([all_errs, epoch_errs])
 
-        return errs
+        return all_errs, epochs_mean_errs
 
     def save_weights(self, filename):
         raise NotImplementedError()
