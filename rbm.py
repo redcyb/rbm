@@ -9,26 +9,26 @@ from util import xavier_init, sigmoid, sample_bernoulli
 class RBM(AbstractRBM):
     def __init__(self, n_visible, n_hidden,
                  learning_rate=0.01, momentum=0.95, xavier_const=1.0,
-                 err_function='mse', use_tqdm=False):
+                 err_function='mse', use_tqdm=False, initial_w=None, initial_bh=None, initial_bv=None):
 
         super().__init__(
             n_visible, n_hidden,
-            learning_rate=learning_rate, momentum=momentum,
-            xavier_const=xavier_const, err_function=err_function,
-            use_tqdm=use_tqdm)
+            learning_rate=learning_rate, momentum=momentum, xavier_const=xavier_const, err_function=err_function,
+            use_tqdm=use_tqdm, initial_w=initial_w, initial_bh=initial_bh, initial_bv=initial_bv)
 
         # v to h links are w
 
         # self.w = xavier_init(self.n_visible, self.n_hidden, const=xavier_const)
-        self.w = np.random.uniform(-0.1, 0.1, size=(self.n_visible, self.n_hidden))
+        self.w = np.random.uniform(-0.2, 0.2, size=(self.n_visible, self.n_hidden))
+        self.shift_w = np.random.uniform(0, 0.2, size=(self.n_visible, self.n_hidden))
 
         # Visible bias = bv
-
-        self.bv = np.random.uniform(-0.1, 0.1, size=self.n_visible)
+        self.bv = np.random.uniform(-0.2, 0.2, size=self.n_visible)
+        self.shift_bv = np.random.uniform(0, 0.2, size=self.n_visible)
 
         # Hidden bias = bh
-
-        self.bh = np.random.uniform(-0.1, 0.1, size=self.n_hidden)
+        self.bh = np.random.uniform(-0.2, 0.2, size=self.n_hidden)
+        self.shift_bh = np.random.uniform(0, 0.2, size=self.n_hidden)
 
     def get_prob_h(self, x):
         return sigmoid(np.dot(np.transpose(self.w), x) + self.bh)
@@ -96,8 +96,11 @@ class RBM(AbstractRBM):
     def save_weights(self, filename):
         data = {
             'w': self.w.tolist(),
+            'shift_w': self.shift_w.tolist(),
             'bh': self.bh.tolist(),
+            'shift_bh': self.shift_bh.tolist(),
             'bv': self.bv.tolist(),
+            'shift_bv': self.shift_bv.tolist(),
         }
         d = json.dumps(data)
 
@@ -113,5 +116,8 @@ class RBM(AbstractRBM):
         with open(filename, "rb") as f:
             data = json.loads(f.read())
         self.w = np.array(data["w"])
+        self.shift_w = np.array(data["shift_w"])
         self.bh = np.array(data["bh"])
+        self.shift_bh = np.array(data["shift_bh"])
         self.bv = np.array(data["bv"])
+        self.shift_bv = np.array(data["shift_bv"])

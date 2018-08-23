@@ -12,7 +12,10 @@ class AbstractRBM:
                  momentum=0.95,
                  xavier_const=1.0,
                  err_function='mse',
-                 use_tqdm=False):
+                 use_tqdm=False,
+                 **kwargs):
+
+        np.random.seed(kwargs.get("seed", 12345))
 
         if not 0.0 <= momentum <= 1.0:
             raise ValueError('momentum should be in range [0, 1]')
@@ -39,7 +42,8 @@ class AbstractRBM:
         # Hidden bias = bh
 
     def get_err(self, batch_x, batch_sample_v1, err_func="mse"):
-        return np.mean(np.square(np.power((batch_x - batch_sample_v1), 2 * np.ones(batch_x.shape))))
+        # return np.mean(np.square(np.power((batch_x - batch_sample_v1), 2 * np.ones(batch_x.shape))))
+        return np.mean(np.square((batch_x - batch_sample_v1)))
 
     def get_free_energy(self):
         raise NotImplementedError()
