@@ -13,12 +13,13 @@ class FRBM(AbstractRBM):
                  momentum=0.95,
                  xavier_const=1.0,
                  err_function='mse',
-                 use_tqdm=False):
+                 use_tqdm=False,
+                 seed=12345):
         super().__init__(
             n_visible, n_hidden,
             learning_rate=learning_rate, momentum=momentum,
             xavier_const=xavier_const, err_function=err_function,
-            use_tqdm=use_tqdm)
+            use_tqdm=use_tqdm, seed=seed)
 
         # v to h links are w
 

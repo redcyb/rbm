@@ -63,7 +63,7 @@ def show_digit_image(x, name, **kwargs):
 
 def save_original_digit_image(x, name):
     plt.imshow(x.reshape((28, 28)), cmap=plt.cm.gray)
-    plt.savefig(f"./images/{name}___orig.png")
+    plt.savefig(f"./images/{name}___z_orig.png")
 
 
 def show_original_digit_image(x):

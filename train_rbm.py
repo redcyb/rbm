@@ -10,8 +10,10 @@ mnist = input_data.read_data_sets('mnist/', one_hot=True)
 mnist_images = mnist.train.images
 
 
-def get_instance(model, n_hidden=64):
-    settings = {"n_visible": 784, "n_hidden": n_hidden, "learning_rate": 0.01, "momentum": 0.95, "use_tqdm": True}
+def get_instance(model, n_hidden=64, seed=12345):
+    settings = {"n_visible": 784, "n_hidden": n_hidden,
+                "learning_rate": 0.01, "momentum": 0.95,
+                "use_tqdm": True, "seed": seed}
     if model == "rbm":
         return RBM(**settings)
     if model == "frbm":
@@ -35,12 +37,13 @@ def train_rbm(instance, epochs, show=False):
     return epochs_mean_errors
 
 
-# MODEL = "frbm"
-MODEL = "rbm"
+MODEL = "frbm"
+# MODEL = "rbm"
 HIDDEN = 64
-EPOCHS = 10
+EPOCHS = 50
+SEED = 93459
 
-bbrbm = get_instance(MODEL, n_hidden=HIDDEN)
+bbrbm = get_instance(MODEL, n_hidden=HIDDEN, seed=SEED)
 
 # bbrbm.save_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}")
 bbrbm.load_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}")

@@ -1,10 +1,10 @@
 import json
 import matplotlib.pyplot as plt
 
-with open("./details/rbm___hid_128___ep_20", "rb") as f:
+with open("./details/rbm___hid_64___ep_10", "rb") as f:
     rbm_results = json.loads(f.read())
 
-with open("./details/frbm___hid_128___ep_20", "rb") as ff:
+with open("./details/frbm___hid_64___ep_10", "rb") as ff:
     frbm_results = json.loads(ff.read())
 
 rbm_errors = rbm_results.get("errors")

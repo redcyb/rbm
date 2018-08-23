@@ -9,12 +9,12 @@ from util import xavier_init, sigmoid, sample_bernoulli
 class RBM(AbstractRBM):
     def __init__(self, n_visible, n_hidden,
                  learning_rate=0.01, momentum=0.95, xavier_const=1.0,
-                 err_function='mse', use_tqdm=False, initial_w=None, initial_bh=None, initial_bv=None):
+                 err_function='mse', use_tqdm=False, seed=12345):
 
         super().__init__(
             n_visible, n_hidden,
             learning_rate=learning_rate, momentum=momentum, xavier_const=xavier_const, err_function=err_function,
-            use_tqdm=use_tqdm, initial_w=initial_w, initial_bh=initial_bh, initial_bv=initial_bv)
+            use_tqdm=use_tqdm, seed=seed)
 
         # v to h links are w
 
