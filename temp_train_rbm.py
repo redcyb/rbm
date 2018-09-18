@@ -1,10 +1,8 @@
-from datetime import datetime
-
 import matplotlib.pyplot as plt
 
 from tensorflow.examples.tutorials.mnist import input_data
-from frbm import FRBM
-from rbm import RBM
+from models.frbm import FRBM
+from models.rbm import RBM
 
 mnist = input_data.read_data_sets('mnist/', one_hot=True)
 mnist_images = mnist.train.images

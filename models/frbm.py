@@ -1,8 +1,8 @@
 import json
 import numpy as np
 
-from common import AbstractRBM
-from util import xavier_init, sigmoid, sample_bernoulli
+from models.common import AbstractRBM
+from util import sigmoid, sample_bernoulli
 
 
 class FRBM(AbstractRBM):

@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from tensorflow.examples.tutorials.mnist import input_data
-from frbm import FRBM
-from rbm import RBM
-from util import save_digit_image, save_original_digit_image, show_digit_image, show_original_digit_image
+from models.frbm import FRBM
+from models.rbm import RBM
+from util import save_digit_image, show_digit_image, show_original_digit_image
 
 mnist = input_data.read_data_sets('mnist/', one_hot=True)
 mnist_images = mnist.train.images
