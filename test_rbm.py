@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 from tensorflow.examples.tutorials.mnist import input_data
 
-from models.frbm import FRBM
-from models.rbm import RBM
+from models.rbm import CRBM, FRBM
 from util import test_reconstruction
 
 mnist = input_data.read_data_sets('mnist/', one_hot=True)
