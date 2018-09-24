@@ -1,26 +1,21 @@
 import matplotlib.pyplot as plt
-import numpy as np
-
 from tensorflow.examples.tutorials.mnist import input_data
+
 from models.frbm import FRBM
 from models.rbm import RBM
-from util import save_digit_image, show_digit_image, show_original_digit_image
+from util import test_reconstruction
 
 mnist = input_data.read_data_sets('mnist/', one_hot=True)
-mnist_images = mnist.train.images
 
+x_train = mnist.train.images
+y_train = mnist.train.labels
 
-def get_instance(model, n_hidden=64):
-    settings = {"n_visible": 784, "n_hidden": n_hidden, "learning_rate": 0.01, "momentum": 0.95, "use_tqdm": True}
-    if model == "rbm":
-        return RBM(**settings)
-    if model == "frbm":
-        return FRBM(**settings)
-    return None
+x_test = mnist.test.images
+y_test = mnist.test.labels
 
 
 def train_rbm(instance, epochs, show=False):
-    all_errs, epochs_mean_errors = instance.fit(mnist_images, n_epoches=epochs, batch_size=10)
+    all_errs, epochs_mean_errors = instance.fit(x_train, n_epoches=epochs, batch_size=10)
 
     if show:
         try:
@@ -35,67 +30,27 @@ def train_rbm(instance, epochs, show=False):
     return epochs_mean_errors
 
 
-def test_reconstruction(instance, mnist_img_num, **kwargs):
-    image = mnist_images[mnist_img_num]
-    image_rec = instance.reconstruct(image)
-    # save_original_digit_image(image, mnist_img_num)
-    save_digit_image(image_rec, mnist_img_num, **kwargs)
-    # show_original_digit_image(image)
-    # show_digit_image(image_rec, mnist_img_num, **kwargs)
+# def test_restoring_partial(instance, mnist_img_num, **kwargs):
+#     image = x_test[mnist_img_num]
+#     mid = 550
+#     image1 = np.hstack((image[:mid], np.array([0 for i in range(len(image) - mid)])))
+#     image_rec = instance.reconstruct(image1)
+#     # save_original_digit_image(image, mnist_img_num)
+#     show_original_digit_image(image)
+#     show_digit_image(image_rec, mnist_img_num, **kwargs)
 
-
-def test_restoring_partial(instance, mnist_img_num, **kwargs):
-    image = mnist_images[mnist_img_num]
-    mid = 550
-    image1 = np.hstack((image[:mid], np.array([0 for i in range(len(image) - mid)])))
-    image_rec = instance.reconstruct(image1)
-    # save_original_digit_image(image, mnist_img_num)
-    show_original_digit_image(image)
-    show_digit_image(image_rec, mnist_img_num, **kwargs)
-
-
-def test_load_and_reconstruct(instance, filename, num=None):
-    instance.load_weights(filename)
-    if num is not None:
-        test_reconstruction(instance, num)
-
-
-# MODEL = "frbm"
-MODEL = "rbm"
-HIDDEN = 64
+MODEL = FRBM
+VISIBLE = 784
+HIDDEN = 392
 EPOCHS = 50
-SEED = 93459
 
-bbrbm = get_instance(MODEL, n_hidden=HIDDEN)
-bbrbm.load_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{EPOCHS}")
+bbrbm = MODEL(n_visible=VISIBLE, n_hidden=HIDDEN, learning_rate=0.01, momentum=0.95, use_tqdm=True)
+bbrbm.load_weights(f"./weights/{MODEL.__name__.lower()}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}.json")
 
-test_reconstruction(bbrbm, 0, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 2, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 3, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 4, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 5, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 6, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 7, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 8, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 9, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 10, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 11, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 12, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 13, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 14, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 15, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 16, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 17, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 18, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 19, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1000, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1001, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1002, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1003, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1004, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1005, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1006, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1007, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1008, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
-test_reconstruction(bbrbm, 1009, model=MODEL, hidden=HIDDEN, epochs=EPOCHS)
+for i in [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+    11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010
+]:
+    test_reconstruction(i, x_test, y_test, bbrbm,
+                        f"{MODEL.__name__.lower()}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}")

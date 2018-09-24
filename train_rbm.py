@@ -10,10 +10,10 @@ mnist = input_data.read_data_sets('mnist/', one_hot=True)
 mnist_images = mnist.train.images
 
 
-def get_instance(model, n_hidden=64, seed=12345):
+def get_instance(model, n_hidden=64):
     settings = {"n_visible": 784, "n_hidden": n_hidden,
                 "learning_rate": 0.01, "momentum": 0.95,
-                "use_tqdm": True, "seed": seed}
+                "use_tqdm": True}
     if model == "rbm":
         return RBM(**settings)
     if model == "frbm":
@@ -37,17 +37,20 @@ def train_rbm(instance, epochs, show=False):
     return epochs_mean_errors
 
 
-MODEL = "frbm"
-# MODEL = "rbm"
+# MODEL = "frbm"
+MODEL = "rbm"
+VISIBLE = 784
 HIDDEN = 64
-EPOCHS = 50
-SEED = 93459
+EPOCHS = 51
 
-bbrbm = get_instance(MODEL, n_hidden=HIDDEN, seed=SEED)
+bbrbm = get_instance(MODEL, n_hidden=HIDDEN)
 
-# bbrbm.save_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}")
-bbrbm.load_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}")
-#
+# bbrbm.save_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}.json")
+# bbrbm.load_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}.json")
+
+# bbrbm.save_weights(f"./weights/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{0}.json")
+bbrbm.load_weights(f"./weights/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{0}.json")
+
 start = datetime.now()
 errors = train_rbm(bbrbm, EPOCHS)
 finish = datetime.now()
@@ -55,5 +58,5 @@ spent = (finish - start).seconds
 
 print(f"Time spent: {spent} sec")
 
-bbrbm.save_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{EPOCHS}")
-bbrbm.save_details(f"./details/{MODEL}___hid_{HIDDEN}___ep_{EPOCHS}", {"training_time (s)": spent, "errors": errors})
+bbrbm.save_weights(f"./weights/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}_2.json")
+bbrbm.save_details(f"./details/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}_2.json", {"training_time (s)": spent, "errors": errors})
