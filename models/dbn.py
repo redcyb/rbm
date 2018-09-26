@@ -123,11 +123,11 @@ class FuzzyDBN(DBN):
             prob_h0_l, prob_h0_r = r.get_prob_h_batch(signal, signal)
             # signal_l, signal_r = r.sample_h(prob_h0_l, prob_h0_r)
             # signal = (signal_l + signal_r) / 2
-            signal = (prob_h0_l + prob_h0_r) / 2
+            signal = prob_h0_l, prob_h0_r
 
         for i, r in enumerate(reversed(self.rbms)):
             prob_v1_l, prob_v1_r = r.get_prob_v_batch(signal, signal)
             # sample = r.sample_v(prob_v1)
-            signal = (prob_v1_l + prob_v1_r) / 2
+            signal = prob_v1_l, prob_v1_r
 
-        return signal
+        return (signal[0] + signal[1]) / 2

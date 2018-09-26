@@ -300,6 +300,99 @@ class FRBM(RBM):
         self.bh_l = np.random.uniform(-0.1, 0.1, size=self.n_hidden)
         self.bh_r = self.bh_l + np.random.uniform(0.01, 0.1, size=self.n_hidden)
 
+    def fit(self, xs, n_epoches=10, batch_size=10, shuffle=True, verbose=True, save_result=False):
+        start = datetime.now()
+
+        if isinstance(xs, (tuple, list)):
+            x_l = xs[0]
+            x_r = xs[1]
+        else:
+            x_l = xs
+            x_r = xs
+
+        n_data = x_l.shape[0]
+
+        if batch_size > 0:
+            n_batches = n_data // batch_size + (0 if n_data % batch_size == 0 else 1)
+        else:
+            n_batches = 1
+
+        inds = np.arange(n_data)
+
+        if shuffle:
+            x_l_cpy = x_l.copy()
+            x_r_cpy = x_r.copy()
+        else:
+            x_l_cpy = x_l
+            x_r_cpy = x_r
+
+        all_errs = []
+        epochs_mean_errs = []
+
+        for e in range(n_epoches):
+            if verbose and not self._use_tqdm:
+                print('Epoch: {:d}'.format(e))
+
+            epoch_errs = []
+
+            epoch_errs_ptr = 0
+
+            if shuffle:
+                np.random.shuffle(inds)
+
+                x_l_cpy = x_l_cpy[inds]
+                x_r_cpy = x_r_cpy[inds]
+
+            r_batches = range(n_batches)
+
+            if verbose and self._use_tqdm:
+                r_batches = self._tqdm(r_batches, desc='Epoch: {:d}'.format(e), ascii=True, file=sys.stdout)
+
+            for b in r_batches:
+                batch_x_l = x_l_cpy[b * batch_size:(b + 1) * batch_size]
+                batch_x_r = x_r_cpy[b * batch_size:(b + 1) * batch_size]
+
+                batch_sample_v1 = self.partial_fit((batch_x_l, batch_x_r))
+
+                batch_err = self.get_err((batch_x_l, batch_x_r), batch_sample_v1)
+
+                epoch_errs.append(batch_err)
+
+                epoch_errs_ptr += 1
+
+            if verbose:
+
+                epoch_errs_m = np.array(epoch_errs)
+
+                err_mean = epoch_errs_m.mean(axis=0)
+                epochs_mean_errs.append(err_mean)
+
+                if self._use_tqdm:
+                    self._tqdm.write(f'Train error: {err_mean}')
+                    self._tqdm.write('')
+                else:
+                    print(f'Train error: {err_mean}')
+                    print('')
+                sys.stdout.flush()
+
+            # all_errs = np.hstack([all_errs, epoch_errs])
+
+        if save_result:
+            self.save_weights(
+                f"./weights/{self.__class__.__name__.lower()}___{self.n_visible}x{self.n_hidden}___ep_{n_epoches}.json"
+            )
+            # self.save_details(
+            #     f"./details/{self.__class__.__name__.lower()}___{self.n_visible}x{self.n_hidden}___ep_{n_epoches}.json",
+            #     {"training_time (s)": (datetime.now() - start).seconds, "errors": epochs_mean_errs}
+            # )
+
+        return all_errs, epochs_mean_errs
+
+    def get_err(self, batch_x, batch_sample_v1, err_func="mse"):
+        x_l, x_r = batch_x
+        v_l, v_r = batch_sample_v1
+        return np.mean(np.square(x_l - v_l)), np.mean(np.square(x_r - v_r))
+
     def get_prob_h(self, x_l, x_r):
         return (
             sigmoid(np.dot(np.transpose(self.w_l), x_l) + self.bh_l),
@@ -359,25 +452,25 @@ class FRBM(RBM):
     def get_delta_bh(self, prob_h0, prob_h1):
         return (prob_h0 - prob_h1) * (self.momentum * self.learning_rate)
 
-    def partial_fit(self, batch_x):
-        prob_h0_l, prob_h0_r = self.get_prob_h_batch(batch_x, batch_x)
+    def partial_fit(self, batch_x_pair):
+        x_l, x_r = batch_x_pair
+
+        prob_h0_l, prob_h0_r = self.get_prob_h_batch(x_l, x_r)
         sample_h0_l, sample_h0_r = self.sample_h_batch(prob_h0_l, prob_h0_r)
 
         prob_v1_l, prob_v1_r = self.get_prob_v_batch(sample_h0_l, sample_h0_r)
         sample_v1_l, sample_v1_r = self.sample_v_batch(prob_v1_l, prob_v1_r)
 
-        sample_v1_defuz = (sample_v1_l + sample_v1_r) / 2
-
         prob_h1_l, prob_h1_r = self.get_prob_h_batch(sample_v1_l, sample_v1_r)
 
-        x_to_h0_l = np.matmul(batch_x.T, prob_h0_l) / batch_x.shape[0]
-        x_to_h0_r = np.matmul(batch_x.T, prob_h0_r) / batch_x.shape[0]
+        x_to_h0_l = np.matmul(x_l.T, prob_h0_l) / x_l.shape[0]
+        x_to_h0_r = np.matmul(x_r.T, prob_h0_r) / x_r.shape[0]
 
-        v1_to_h1_l = np.matmul(sample_v1_l.T, prob_h1_l) / batch_x.shape[0]
-        v1_to_h1_r = np.matmul(sample_v1_r.T, prob_h1_r) / batch_x.shape[0]
+        v1_to_h1_l = np.matmul(sample_v1_l.T, prob_h1_l) / x_l.shape[0]
+        v1_to_h1_r = np.matmul(sample_v1_r.T, prob_h1_r) / x_r.shape[0]
 
-        x_m_v1_l = batch_x - sample_v1_l
-        x_m_v1_r = batch_x - sample_v1_r
+        x_m_v1_l = x_l - sample_v1_l
+        x_m_v1_r = x_r - sample_v1_r
 
         h0_m_h1_l = prob_h0_l - prob_h1_l
         h0_m_h1_r = prob_h0_r - prob_h1_r
@@ -411,7 +504,7 @@ class FRBM(RBM):
         self.bv_l = self.bv_l + delta_bv_mean_l
         self.bv_r = self.bv_r + delta_bv_mean_r
 
-        return sample_v1_defuz
+        return sample_v1_l, sample_v1_r
 
     def reconstruct(self, x):
         prob_h0_l, prob_h0_r = self.get_prob_h(x, x)

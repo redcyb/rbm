@@ -38,13 +38,14 @@ def train_rbm(instance, epochs, show=False):
 #     show_original_digit_image(image)
 #     show_digit_image(image_rec, mnist_img_num, **kwargs)
 
-MODEL = FRBM
+MODEL = CRBM
 VISIBLE = 784
-HIDDEN = 392
-EPOCHS = 50
+HIDDEN = 64
+EPOCHS = 51
 
 bbrbm = MODEL(n_visible=VISIBLE, n_hidden=HIDDEN, learning_rate=0.01, momentum=0.95, use_tqdm=True)
 bbrbm.load_weights(f"./weights/{MODEL.__name__.lower()}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}.json")
+# bbrbm.fit(x_train, n_epoches=EPOCHS, save_result=True)
 
 for i in [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
