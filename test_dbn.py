@@ -14,15 +14,23 @@ y_test = mnist.test.labels
 
 MODEL = CrispDBN
 # MODEL = FuzzyDBN
-EPOCHS = 100
+EPOCHS = 101
 SEED = np.random.seed(123)
-LAYERS = (784, 64, 10)
+LAYERS = (784, 392, 64, 10)
 
 dbn = MODEL(layers=LAYERS)
 
-# dbn.rbms[0].load_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___784x392___ep_50.json")
-# dbn.rbms[1].load_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___392x64___ep_50.json")
-# dbn.rbms[2].load_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___64x10___ep_50.json")
+# dbn.rbms[0].load_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___784x392___ep_101.json")
+# dbn.rbms[1].load_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___392x64___ep_101.json")
+# dbn.rbms[2].load_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___64x10___ep_101.json")
+
+# dbn.rbms[0].load_weights(f"./weights/frbm___def___784x392___ep_101.json")
+# dbn.rbms[1].load_weights(f"./weights/frbm___def___392x64___ep_101.json")
+# dbn.rbms[2].load_weights(f"./weights/frbm___def___64x10___ep_101.json")
+
+# dbn.rbms[0].defuzzify_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___def___784x392___ep_101.json")
+# dbn.rbms[1].defuzzify_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___def___392x64___ep_101.json")
+# dbn.rbms[2].defuzzify_weights(f"./weights/{MODEL.RBM_MODEL.__name__.lower()}___def___64x10___ep_101.json")
 
 # ===== TRAIN DBN
 

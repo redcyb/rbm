@@ -260,11 +260,11 @@ class CRBM(RBM):
         with open(filename, "rb") as f:
             data = json.loads(f.read())
         self.w = np.array(data["w"])
-        self.shift_w = np.array(data["shift_w"])
+        # self.shift_w = np.array(data["shift_w"])
         self.bh = np.array(data["bh"])
-        self.shift_bh = np.array(data["shift_bh"])
+        # self.shift_bh = np.array(data["shift_bh"])
         self.bv = np.array(data["bv"])
-        self.shift_bv = np.array(data["shift_bv"])
+        # self.shift_bv = np.array(data["shift_bv"])
 
 
 class FRBM(RBM):
@@ -445,3 +445,17 @@ class FRBM(RBM):
 
         self.bv_l = np.array(data["bv_l"])
         self.bv_r = np.array(data["bv_r"])
+
+    def defuzzify_weights(self, filename):
+
+        w = (self.w_l + self.w_r) / 2
+        bh = (self.bh_l + self.bh_r) / 2
+        bv = (self.bv_l + self.bv_r) / 2
+
+        data = {
+            'w': w.tolist(),
+            'bh': bh.tolist(),
+            'bv': bv.tolist(),
+        }
+        with open(filename, "w") as f:
+            f.write(json.dumps(data))

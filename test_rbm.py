@@ -29,22 +29,15 @@ def train_rbm(instance, epochs, show=False):
     return epochs_mean_errors
 
 
-# def test_restoring_partial(instance, mnist_img_num, **kwargs):
-#     image = x_test[mnist_img_num]
-#     mid = 550
-#     image1 = np.hstack((image[:mid], np.array([0 for i in range(len(image) - mid)])))
-#     image_rec = instance.reconstruct(image1)
-#     # save_original_digit_image(image, mnist_img_num)
-#     show_original_digit_image(image)
-#     show_digit_image(image_rec, mnist_img_num, **kwargs)
-
-MODEL = FRBM
+MODEL = CRBM
 VISIBLE = 784
 HIDDEN = 392
 EPOCHS = 50
 
 bbrbm = MODEL(n_visible=VISIBLE, n_hidden=HIDDEN, learning_rate=0.01, momentum=0.95, use_tqdm=True)
-bbrbm.load_weights(f"./weights/{MODEL.__name__.lower()}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}.json")
+# bbrbm.load_weights(f"./weights/{MODEL.__name__.lower()}___{VISIBLE}x{HIDDEN}___ep_{EPOCHS}.json")
+
+train_rbm(bbrbm, EPOCHS, show=True)
 
 for i in [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,

@@ -51,7 +51,6 @@ def test_reconstruction(mnist_img_num, xs, ys, instance, config_str):
     image_rec = instance.reconstruct(image)
 
     save_original_digit_image(image, mnist_img_num, label_to_str(ys[mnist_img_num]))
-
     save_digit_image(image_rec, mnist_img_num, label_to_str(ys[mnist_img_num]), config_str)
 
     # show_original_digit_image(image)
