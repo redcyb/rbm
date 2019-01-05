@@ -3,8 +3,8 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 from tensorflow.examples.tutorials.mnist import input_data
-from models.frbm import FRBM
-from models.rbm import RBM
+from models.rbm import FRBM
+from models.rbm import CRBM
 
 mnist = input_data.read_data_sets('mnist/', one_hot=True)
 mnist_images = mnist.train.images
@@ -15,7 +15,7 @@ def get_instance(model, n_hidden=64):
                 "learning_rate": 0.01, "momentum": 0.95,
                 "use_tqdm": True}
     if model == "rbm":
-        return RBM(**settings)
+        return CRBM(**settings)
     if model == "frbm":
         return FRBM(**settings)
     return None
@@ -40,7 +40,7 @@ def train_rbm(instance, epochs, show=False):
 # MODEL = "frbm"
 MODEL = "rbm"
 VISIBLE = 784
-HIDDEN = 64
+HIDDEN = 128
 EPOCHS = 51
 
 bbrbm = get_instance(MODEL, n_hidden=HIDDEN)
@@ -49,7 +49,10 @@ bbrbm = get_instance(MODEL, n_hidden=HIDDEN)
 # bbrbm.load_weights(f"./weights/{MODEL}___hid_{HIDDEN}___ep_{0}.json")
 
 # bbrbm.save_weights(f"./weights/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{0}.json")
-bbrbm.load_weights(f"./weights/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{0}.json")
+try:
+    bbrbm.load_weights(f"./weights/{MODEL}___{VISIBLE}x{HIDDEN}___ep_{0}.json")
+except:
+    print("No old weights")
 
 start = datetime.now()
 errors = train_rbm(bbrbm, EPOCHS)
